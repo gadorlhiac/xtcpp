@@ -19,6 +19,7 @@
 
 #include <any>
 #include <cstdint>
+#include <cstring>
 #include <iostream>
 #include <memory>
 #include <stdfloat>
@@ -130,20 +131,29 @@ namespace {
                                                 arrshape,
                                                 strides));
         } else {
-          // TODO: Make this multi-segment code not need a copy??
-          py::list segment_arrays;
-          // Boo... this will cause a copy at the end when the segments are put
-          // into a single array :(
-          for (size_t seg=0; seg < nsegs; ++seg) {
-            segment_arrays.append(py::array_t<T>(py::buffer_info(reinterpret_cast<T**>(val)[seg],
-                                                                 sizeof(T),
-                                                                 py::format_descriptor<T>::format(),
-                                                                 rank - 1,
-                                                                 arrshape,
-                                                                 strides)));
+          // Allocate a single contiguous array and memcpy each segment directly,
+          // avoiding the previous py::list approach which caused N+1 copies.
+          std::vector<size_t> full_shape;
+          full_shape.reserve(rank);
+          full_shape.push_back(nsegs);
+          full_shape.insert(full_shape.end(), arrshape.begin(), arrshape.end());
 
+          std::vector<size_t> full_strides(rank);
+          full_strides[rank - 1] = sizeof(T);
+          for (ssize_t j = static_cast<ssize_t>(rank) - 2; j >= 0; --j) {
+            full_strides[j] = full_strides[j + 1] * full_shape[j + 1];
           }
-          return py::array_t<T>(segment_arrays);
+
+          py::array_t<T> result(full_shape, full_strides);
+          T* dst = result.mutable_data();
+          size_t seg_bytes = full_strides[0];
+          size_t seg_elems = seg_bytes / sizeof(T);
+          for (size_t seg = 0; seg < nsegs; ++seg) {
+            std::memcpy(dst + seg * seg_elems,
+                        reinterpret_cast<T**>(val)[seg],
+                        seg_bytes);
+          }
+          return result;
         }
       }
       /* Complex case - "PIL" style -- see the actual Python docs for this one */

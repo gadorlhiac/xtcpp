@@ -427,8 +427,8 @@ namespace XTCPP {
       }
       if (have_data) {
         m_last_index_read = static_cast<ssize_t>(offset_idx);
-        std::vector<unsigned> reader_seg_nos =
-            reader->segment_numbers()["scan"];
+        const auto& reader_seg_nos =
+            reader->segment_numbers().at("scan");
         unsigned seg_no = reader_seg_nos[0]; // There should only be 1
         auto [data_ptr, data_size, rank, shape] =
           reader->get_data(m_detname, seg_no, alg, data_name);
@@ -465,8 +465,8 @@ namespace XTCPP {
         m_last_index_read = static_cast<ssize_t>(offset_idx);
         // Data is stored under "epics" detector. The algorithm
         // is always "raw" and the field name is the PV name - our m_detname
-        std::vector<unsigned> reader_seg_nos =
-          reader->segment_numbers()["epics"];
+        const auto& reader_seg_nos =
+          reader->segment_numbers().at("epics");
         unsigned seg_no = reader_seg_nos[0]; // There should only be 1
         std::string epics_detname{"epics"};
         std::string epics_alg{"raw"};
@@ -503,8 +503,8 @@ namespace XTCPP {
         auto ret = reader->read_l1_at(offset_idx);
         bool set_rank_and_shape {true};
         if (ret.has_value()) {
-          std::vector<unsigned> reader_seg_nos =
-              reader->segment_numbers()[m_detname];
+          const auto& reader_seg_nos =
+              reader->segment_numbers().at(m_detname);
           auto seg_no_it = reader_seg_nos.begin();
           while (seg_no_it != reader_seg_nos.end()) {
             auto [data_ptr, data_size, rank, shape] =
@@ -568,8 +568,8 @@ namespace XTCPP {
         auto ret = reader->read_l1_at(offset_idx);
         bool set_rank_and_shape {true};
         if (ret.has_value()) {
-          std::vector<unsigned> reader_seg_nos =
-              reader->segment_numbers()[m_detname];
+          const auto& reader_seg_nos =
+              reader->segment_numbers().at(m_detname);
           auto seg_no_it = reader_seg_nos.begin();
           while (seg_no_it != reader_seg_nos.end()) {
             auto [data_ptr, data_size, rank, shape] =
@@ -652,7 +652,7 @@ namespace XTCPP {
         auto ret = reader->wait();
         if (ret.has_value()) {
           //m_logger->trace("** Have a non-null dgram return. Now accessing the data field.");
-          std::vector<unsigned> reader_seg_nos = reader->segment_numbers()[m_detname];
+          const auto& reader_seg_nos = reader->segment_numbers().at(m_detname);
           auto seg_no_it = reader_seg_nos.begin();
           while (seg_no_it != reader_seg_nos.end()) {
             auto [data_ptr, data_size, rank, shape] =
@@ -721,7 +721,7 @@ namespace XTCPP {
         auto ret = reader->wait();
         if (ret.has_value()) {
           //m_logger->trace("** Have a non-null dgram return. Now accessing the data field.");
-          std::vector<unsigned> reader_seg_nos = reader->segment_numbers()[m_detname];
+          const auto& reader_seg_nos = reader->segment_numbers().at(m_detname);
           auto seg_no_it = reader_seg_nos.begin();
           while (seg_no_it != reader_seg_nos.end()) {
             auto [data_ptr, data_size, rank, shape] =
