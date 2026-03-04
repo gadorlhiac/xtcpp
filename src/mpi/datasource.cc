@@ -143,7 +143,7 @@ namespace XTCPP {
           serial_nos.push_back(ser_no);
           segments.push_back(seg_no);
         } else {
-          auto det_reader_segs = det_reader->segment_numbers()[detname];
+          const auto& det_reader_segs = det_reader->segment_numbers().at(detname);
           auto det_reader_sernos = det_reader->serial_numbers()[detname];
           // These two should be the same size
           if (det_reader_segs.size() != det_reader_sernos.size()) {

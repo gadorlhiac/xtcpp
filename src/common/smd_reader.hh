@@ -210,7 +210,7 @@ namespace XTCPP
       /**
        * The map of detector names to segment numbers for the data in this XTC2 file.
        */
-      std::map<std::string, std::vector<unsigned>> segment_numbers() const { return m_segment_nos; }
+      const std::map<std::string, std::vector<unsigned>>& segment_numbers() const { return m_segment_nos; }
 
       /**
        * The map of detector names to serial numbers for the data in this XTC2 file.
